@@ -37,7 +37,32 @@ try {
         ...tokens,
         user: userData
     }
+
+   
 } catch (error) {
     console.log(error)
 }
+}
+
+export const activateUser = async (activationLink: string) =>{
+    const user = await prisma.user.findFirst({
+        where: {
+            activationLink: activationLink
+        }
+    }).then(res =>{
+        console.log(res);
+        if (!res) {
+            console.log("asd");
+            throw new Error('Некорректная ссылка активации');
+        }
+        return prisma.user.update({
+            where: {
+                uuid: res.uuid
+            },
+            data: {
+                isActivated: true
+            }
+        });
+    })
+
 }

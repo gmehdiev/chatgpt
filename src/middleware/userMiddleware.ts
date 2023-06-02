@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { registrationUser } from "../service/userService";
+import { activateUser, registrationUser } from "../service/userService";
 
 interface query {
     req: Request,
@@ -52,3 +52,16 @@ export const getUsers = async ({req, res, next} : query)=> {
         console.log(error)
     }
 }
+
+
+export const activate = async (req:Request , res:Response , next:NextFunction)=> {
+    try {
+        console.log(req.params.link)
+        const activateLink = req.params.link
+        await activateUser(activateLink)
+        return res.redirect(`http://vk.com`)
+    } catch (error) {
+        console.log(error)
+    }
+}
+
