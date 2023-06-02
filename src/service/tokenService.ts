@@ -2,13 +2,19 @@ import jwt from "jsonwebtoken"
 import { AuthCookies } from '../consts/secretKeys';
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient()
-export const generateTokens = (payload: string) =>{
+
+interface payload {
+    email:string,
+    id:string,
+    isActivated: boolean,
+}
+export const generateTokens = (payload: payload) =>{
 
     const accessToken = jwt.sign(payload, AuthCookies.ACCESS_TOKEN, {
         expiresIn: '30m'
     });
     const refreshToken = jwt.sign(payload, AuthCookies.REFRESH_TOKEN, {
-        expiresIn: '30m'
+        expiresIn: '30d'
     });
     return {
         accessToken, 
@@ -18,10 +24,23 @@ export const generateTokens = (payload: string) =>{
 
 }
 
-export const saveToken = async (userId, refreshToken) =>{
-    const tokenData = prisma.user.findUnique(
-        where{
-            
+export const saveToken = async (userId: string, refreshToken: string) =>{
+    const tokenData = prisma.token.findUnique({  
+        where: {
+            userUuid: userId
         }
-    )
+    }).then(res =>{
+        if (res == null) return
+        res.refreshToken = refreshToken;
+        return res
+    })
+
+    const token = await prisma.token.create({
+        data: {
+            refreshToken: refreshToken,
+            userUuid:     userId
+        }
+    })
+
+    return token
 }

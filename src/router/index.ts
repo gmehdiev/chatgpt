@@ -1,9 +1,9 @@
 import {Router} from "express";
-import { getUsers } from "../middleware/userMiddleware";
+import { getUsers, registation } from "../middleware/userMiddleware";
 
 export const router = Router()
 
-router.post('/registation')
+router.post('/registation', registation)
 router.post('/login')
 router.post('/logout')
 router.get('/activate/:link')

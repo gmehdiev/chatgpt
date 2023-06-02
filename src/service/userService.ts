@@ -1,11 +1,13 @@
 import { PrismaClient } from "@prisma/client"
 import bcrypt from "bcrypt"
-import uuid from "uuid"
-import { sendActivatonMail } from "./mailService"
+import * as uuid from "uuid"
+// import { sendActivatonMail } from "./mailService"
+import { generateTokens, saveToken } from "./tokenService"
+import { userDto } from "../dtos/userDto"
 
 const prisma = new PrismaClient()
 
-export const registation = async (email: string, password: string) => {
+export const registationUser = async (email: string, password: string) => {
 try {
     const candidate = await prisma.user.findUnique({
         where:{
@@ -24,7 +26,17 @@ try {
             activationLink: activationLink
         }
     })
-    await sendActivatonMail(email, activationLink)
+    // await sendActivatonMail(email, activationLink)
+    const userData = userDto(user)
+    const tokens = generateTokens({...userData})
+
+    await saveToken(userData.id, tokens.refreshToken)
+
+
+    return {
+        ...tokens,
+        user: userData
+    }
 } catch (error) {
     console.log(error)
 }

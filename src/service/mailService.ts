@@ -1,3 +1,3 @@
-export const sendActivatonMail = async (to, link) =>{
+// export const sendActivatonMail = async (to, link) =>{
 
-}
+// }
