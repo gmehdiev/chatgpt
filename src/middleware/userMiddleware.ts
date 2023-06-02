@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { registationUser } from "../service/userService";
+import { registrationUser } from "../service/userService";
 
 interface query {
     req: Request,
@@ -8,11 +8,11 @@ interface query {
 }
 
 
-export const registation = async (req:Request , res:Response , next:NextFunction )=> {
+export const registration = async (req:Request , res:Response , next:NextFunction )=> {
     try {
         // console.log(req.body)
         const {email, password} = req.body;
-        const userData = await registationUser(email, password)
+        const userData = await registrationUser(email, password)
         if (typeof userData === 'undefined') return
         res.cookie('refreshToken', userData.refreshToken, {maxAge: 30*24*60*60*1000, httpOnly: true})
         return res.json(userData)

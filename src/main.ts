@@ -15,3 +15,10 @@ app.use(express.json())
 app.use(cookieParser())
 app.use(cors())
 app.use('/api', router)
+
+// const qweqwe = async () =>{
+//     const tokena = await prisma.token.deleteMany()
+//     const token = await prisma.user.deleteMany()
+//     console.log(tokena,token )
+// }
+// qweqwe()
