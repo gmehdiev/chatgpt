@@ -4,6 +4,7 @@ import { config } from "dotenv";
 import express from "express";
 import cors from "cors";
 import { router } from "./router";
+import { errorMiddleware } from "./middleware/errorMiddleware";
 config()
 const prisma = new PrismaClient()
 const PORT = process.env.PORT ?? 5000;
@@ -15,6 +16,7 @@ app.use(express.json())
 app.use(cookieParser())
 app.use(cors())
 app.use('/api', router)
+app.use(errorMiddleware)
 
 // const qweqwe = async () =>{
 //     const tokena = await prisma.token.deleteMany()

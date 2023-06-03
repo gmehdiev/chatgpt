@@ -8,7 +8,7 @@ interface payload {
 }
 
 
-export const userDto = (payload: payload) =>{
+export const filterUserData = (payload: payload) =>{
     return {
         email:payload.email,
         id:payload.uuid,
