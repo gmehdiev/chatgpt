@@ -2,9 +2,10 @@ import { PrismaClient } from "@prisma/client"
 import bcrypt from "bcrypt"
 import * as uuid from "uuid"
 import { sendActivatonMail } from "./mailService"
-import { generateTokens, saveToken } from "./tokenService"
+import { findToken, generateTokens, removeToken, saveToken, validateRefreshToken } from "./tokenService"
 import { filterUserData } from "./filterUserData"
 import { HttpErrors } from "../helpers/error"
+import { saveTokenAndReturnData } from "./common/saveTokenAndReturnData"
 
 const prisma = new PrismaClient()
 
@@ -29,19 +30,7 @@ export const registrationUser = async (email: string, password: string) => {
         }
     })
     await sendActivatonMail(email, `${process.env.API_URL}/api/activate/${activationLink}`)
-    const userData = filterUserData(user)
-    const tokens = generateTokens({...userData})
-
-    await saveToken(userData.id, tokens.refreshToken)
-
-
-    return {
-        ...tokens,
-        user: userData
-    }
-
-   
-
+    return saveTokenAndReturnData(user)
 }
 
 export const activateUser = async (activationLink: string) =>{
@@ -65,4 +54,51 @@ export const activateUser = async (activationLink: string) =>{
         });
     })
 
+}
+
+
+export const loginUser = async (email: string, password: string) => {
+    const user = await prisma.user.findUnique({
+        where:{
+            email :  email
+        }
+    })
+    if(!user) {
+        throw HttpErrors.BadRequest(); //нет юзера
+    }
+
+    const isPassEquals = await bcrypt.compare(password, user.password)
+    if (!isPassEquals) {
+        throw HttpErrors.BadRequest(); //неправильный пароль
+    }
+
+    return saveTokenAndReturnData(user)
+
+}
+
+export const logoutUser = async (resreshToken: string) => {
+    const token = await removeToken(resreshToken)
+    return token;
+}
+
+export const refreshUser = async (resreshToken: string) => {
+    if(!resreshToken){
+        throw HttpErrors.Unauthorized(); 
+    }
+
+    const userInfo = validateRefreshToken(resreshToken)
+    const tokenFromDB = await findToken(resreshToken)
+    if (!userInfo || !tokenFromDB){
+        throw HttpErrors.Unauthorized(); 
+    }
+    if(typeof userInfo === 'string') return
+    const user = await prisma.user.findUnique({
+        where:{
+            uuid :  userInfo.id
+        }
+    })
+    if (!user){
+        throw HttpErrors.Unauthorized(); 
+    }
+    return saveTokenAndReturnData(user)
 }

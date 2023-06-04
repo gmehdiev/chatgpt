@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { activateUser, registrationUser } from "../utils/userService";
+import { activateUser, loginUser, logoutUser, refreshUser, registrationUser } from "../utils/userService";
 import { validationResult } from "express-validator/src/validation-result";
 import { HttpErrors } from "../helpers/error";
 interface query {
@@ -19,7 +19,7 @@ export const registration = async (req:Request , res:Response , next:NextFunctio
 
         const {email, password} = req.body;
         const userData = await registrationUser(email, password)
-        if (typeof userData === 'undefined') return
+        // if (typeof userData === 'undefined') return
         res.cookie('refreshToken', userData.refreshToken, {maxAge: 30*24*60*60*1000, httpOnly: true})
         return res.json(userData)
     } catch (error) {
@@ -29,7 +29,10 @@ export const registration = async (req:Request , res:Response , next:NextFunctio
 
 export const login = async (req:Request , res:Response , next:NextFunction)=> {
     try {
-        
+        const {email, password} = req.body
+        const userData = await loginUser(email, password)
+        res.cookie('refreshToken', userData.refreshToken, {maxAge: 30*24*60*60*1000, httpOnly: true})
+        return res.json(userData)
     } catch (error) {
         next(error)
     }
@@ -37,15 +40,23 @@ export const login = async (req:Request , res:Response , next:NextFunction)=> {
 
 export const logout = async (req:Request , res:Response , next:NextFunction)=> {
     try {
-        
+        const {refreshToken} = req.cookies;
+        console.log(refreshToken)
+        const token = await logoutUser(refreshToken);
+        res.clearCookie('refreshToken')
+        return res.json(token)
     } catch (error) {
-        next(error)
+        // next(error)
+        console.log(error)
     }
 }
 
 export const refresh = async (req:Request , res:Response , next:NextFunction)=> {
     try {
-        
+        const {refreshToken} = req.cookies;
+        const userData = await refreshUser(refreshToken)
+        res.cookie('refreshToken', userData?.refreshToken, {maxAge: 30*24*60*60*1000, httpOnly: true})
+        return res.json(userData)
     } catch (error) {
         next(error)
     }

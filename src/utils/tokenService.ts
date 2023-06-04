@@ -1,4 +1,4 @@
-import jwt from "jsonwebtoken" 
+import jwt, { JwtPayload } from "jsonwebtoken" 
 import { AuthCookies } from '../consts/secretKeys';
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient()
@@ -25,7 +25,7 @@ export const generateTokens = (payload: payload) =>{
 }
 
 export const saveToken = async (userId: string, refreshToken: string) =>{
-    const tokenData = prisma.token.findUnique({  
+    const tokenData = await prisma.token.findUnique({  
         where: {
             userUuid: userId
         }
@@ -43,4 +43,42 @@ export const saveToken = async (userId: string, refreshToken: string) =>{
     })
 
     return token
+}
+
+export const removeToken = async (refreshToken: string) =>{
+    const tokenData = await prisma.token.delete({
+        where: {
+            refreshToken: refreshToken
+        }
+    })
+    return tokenData
+}
+
+
+export const findToken = async (refreshToken: string) =>{
+    const tokenData = await prisma.token.findUnique({
+        where: {
+            refreshToken: refreshToken
+        }
+    })
+    return tokenData
+}
+
+export const validateAccessToken = (token: string) => {
+        try {
+            const userData = jwt.verify(token, AuthCookies.ACCESS_TOKEN)
+            return userData
+        } catch (error) {
+            return null
+        }
+}
+
+
+export const validateRefreshToken = (token: string) => {
+    try {
+        const userData = jwt.verify(token, AuthCookies.REFRESH_TOKEN)
+        return userData
+    } catch (error) {
+        return null
+    }
 }
