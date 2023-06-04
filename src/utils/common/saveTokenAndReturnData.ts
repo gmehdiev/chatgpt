@@ -13,13 +13,14 @@ import { generateTokens, saveToken } from "../tokenService"
 //     user: userData
 // }
 
-export const saveTokenAndReturnData = async (user: user) =>{
+export const saveTokenAndReturnData = async (user: any) =>{
     const userData = filterUserData(user)
+    
     const tokens = generateTokens({...userData})
-    
+
+       
     await saveToken(userData.id, tokens.refreshToken)
-    
-    
+
     return {
         ...tokens,
         user: userData

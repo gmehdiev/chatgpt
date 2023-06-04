@@ -16,6 +16,7 @@ export const generateTokens = (payload: payload) =>{
     const refreshToken = jwt.sign(payload, AuthCookies.REFRESH_TOKEN, {
         expiresIn: '30d'
     });
+
     return {
         accessToken, 
         refreshToken
@@ -34,14 +35,17 @@ export const saveToken = async (userId: string, refreshToken: string) =>{
         res.refreshToken = refreshToken;
         return res
     })
+    if(tokenData) {
 
+        tokenData.refreshToken = refreshToken;
+        return tokenData
+    }
     const token = await prisma.token.create({
         data: {
             refreshToken: refreshToken,
             userUuid:     userId
         }
     })
-
     return token
 }
 

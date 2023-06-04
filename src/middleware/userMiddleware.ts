@@ -19,11 +19,10 @@ export const registration = async (req:Request , res:Response , next:NextFunctio
 
         const {email, password} = req.body;
         const userData = await registrationUser(email, password)
-        // if (typeof userData === 'undefined') return
         res.cookie('refreshToken', userData.refreshToken, {maxAge: 30*24*60*60*1000, httpOnly: true})
         return res.json(userData)
     } catch (error) {
-        next(error)
+        console.log(error)
     }
 }
 
@@ -34,14 +33,13 @@ export const login = async (req:Request , res:Response , next:NextFunction)=> {
         res.cookie('refreshToken', userData.refreshToken, {maxAge: 30*24*60*60*1000, httpOnly: true})
         return res.json(userData)
     } catch (error) {
-        next(error)
+        console.log(error)
     }
 }
 
 export const logout = async (req:Request , res:Response , next:NextFunction)=> {
     try {
         const {refreshToken} = req.cookies;
-        console.log(refreshToken)
         const token = await logoutUser(refreshToken);
         res.clearCookie('refreshToken')
         return res.json(token)

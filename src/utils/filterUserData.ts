@@ -9,9 +9,10 @@ interface payload {
 
 
 export const filterUserData = (payload: payload) =>{
-    return {
+          return {
         email:payload.email,
         id:payload.uuid,
         isActivated: payload.isActivated,
-    }
+    } 
+ 
 }

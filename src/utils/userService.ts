@@ -39,9 +39,9 @@ export const activateUser = async (activationLink: string) =>{
             activationLink: activationLink
         }
     }).then(res =>{
-        console.log(res);
+        
         if (!res) {
-            console.log("asd");
+
             throw HttpErrors.BadRequest();
         }
         return prisma.user.update({
@@ -63,17 +63,27 @@ export const loginUser = async (email: string, password: string) => {
             email :  email
         }
     })
+    
     if(!user) {
         throw HttpErrors.BadRequest(); //нет юзера
     }
-
+    
     const isPassEquals = await bcrypt.compare(password, user.password)
     if (!isPassEquals) {
         throw HttpErrors.BadRequest(); //неправильный пароль
     }
+    const userData = filterUserData(user)
+    
+    const tokens = generateTokens({...userData})
 
-    return saveTokenAndReturnData(user)
+       
+    await saveToken(userData.id, tokens.refreshToken)
 
+    return {
+        ...tokens,
+        user: userData
+    }
+    
 }
 
 export const logoutUser = async (resreshToken: string) => {
