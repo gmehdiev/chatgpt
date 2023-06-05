@@ -72,35 +72,24 @@ export const loginUser = async (email: string, password: string) => {
     if (!isPassEquals) {
         throw HttpErrors.BadRequest(); //неправильный пароль
     }
-    const userData = filterUserData(user)
-    
-    const tokens = generateTokens({...userData})
-
-       
-    await saveToken(userData.id, tokens.refreshToken)
-
-    return {
-        ...tokens,
-        user: userData
-    }
-    
+return saveTokenAndReturnData(user)
 }
 
-export const logoutUser = async (resreshToken: string) => {
-    const token = await removeToken(resreshToken)
+export const logoutUser = async (refreshToken: string) => {
+    const token = await removeToken(refreshToken)
     return token;
 }
 
-export const refreshUser = async (resreshToken: string) => {
-    if(!resreshToken){
+export const refreshUser = async (refreshToken: string) => {
+    if(!refreshToken){
         throw HttpErrors.Unauthorized(); 
     }
-
-    const userInfo = validateRefreshToken(resreshToken)
-    const tokenFromDB = await findToken(resreshToken)
+    const userInfo = validateRefreshToken(refreshToken)
+    const tokenFromDB = await findToken(refreshToken)
     if (!userInfo || !tokenFromDB){
         throw HttpErrors.Unauthorized(); 
     }
+
     if(typeof userInfo === 'string') return
     const user = await prisma.user.findUnique({
         where:{

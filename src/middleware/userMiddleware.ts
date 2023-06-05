@@ -33,7 +33,7 @@ export const login = async (req:Request , res:Response , next:NextFunction)=> {
         res.cookie('refreshToken', userData.refreshToken, {maxAge: 30*24*60*60*1000, httpOnly: true})
         return res.json(userData)
     } catch (error) {
-        console.log(error)
+        next(error)
     }
 }
 
@@ -44,8 +44,7 @@ export const logout = async (req:Request , res:Response , next:NextFunction)=> {
         res.clearCookie('refreshToken')
         return res.json(token)
     } catch (error) {
-        // next(error)
-        console.log(error)
+        next(error)
     }
 }
 
@@ -53,6 +52,8 @@ export const refresh = async (req:Request , res:Response , next:NextFunction)=> 
     try {
         const {refreshToken} = req.cookies;
         const userData = await refreshUser(refreshToken)
+        console.log('asd')
+        console.log(userData?.refreshToken)
         res.cookie('refreshToken', userData?.refreshToken, {maxAge: 30*24*60*60*1000, httpOnly: true})
         return res.json(userData)
     } catch (error) {
@@ -76,7 +77,7 @@ export const activate = async (req:Request , res:Response , next:NextFunction)=>
         await activateUser(activateLink)
         return res.redirect(`http://vk.com`)
     } catch (error) {
-        console.log(error)
+        next(error)
     }
 }
 
