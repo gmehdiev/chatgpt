@@ -8,10 +8,10 @@ datasource db {
 }
 
 model user {
-    uuid           String  @id @default(uuid())
-    email          String  @unique
-    password       String  @unique
-    isActivated    Boolean @default(false)
+    uuid           String   @id @default(uuid())
+    email          String?  @unique
+    password       String?  @unique
+    isActivated    Boolean? @default(false)
     activationLink String?
     token          token?
 }

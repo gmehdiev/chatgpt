@@ -3,13 +3,13 @@ import bcrypt from "bcrypt"
 import * as uuid from "uuid"
 import { sendActivatonMail } from "./mailService"
 import { findToken, generateTokens, removeToken, saveToken, validateRefreshToken } from "./tokenService"
-import { filterUserData } from "./filterUserData"
+import { filterAnonUserData, filterUserData } from "./filterUserData"
 import { HttpErrors } from "../helpers/error"
 import { saveTokenAndReturnData } from "./common/saveTokenAndReturnData"
 
 const prisma = new PrismaClient()
 
-export const registrationUser = async (email: string, password: string) => {
+export const registrationUser = async (email: string, password: string, refreshToken: string ) => {
 
     const candidate = await prisma.user.findUnique({
         where:{
@@ -18,17 +18,26 @@ export const registrationUser = async (email: string, password: string) => {
     })
     if (candidate) {
         throw HttpErrors.BadRequest();
-
     }
+    
+    const userInfoFromToken = validateRefreshToken(refreshToken)
     const hashPassword = await bcrypt.hash(password, 3)
     const activationLink = uuid.v4()
-    const user = await prisma.user.create({
-        data: {
+
+    if(typeof userInfoFromToken === 'string' || userInfoFromToken === null) return
+    const user = await prisma.user.update({
+            where: {
+                uuid: userInfoFromToken.id
+            },
+            data: {
             email : email,
             password: hashPassword,
             activationLink: activationLink
-        }
-    })
+            }
+        });
+
+    console.log(user)
+
     await sendActivatonMail(email, `${process.env.API_URL}/api/activate/${activationLink}`)
     return saveTokenAndReturnData(user)
 }
@@ -67,6 +76,7 @@ export const loginUser = async (email: string, password: string) => {
     if(!user) {
         throw HttpErrors.BadRequest(); //нет юзера
     }
+    if(user.password === null) return
     
     const isPassEquals = await bcrypt.compare(password, user.password)
     if (!isPassEquals) {
@@ -86,6 +96,7 @@ export const refreshUser = async (refreshToken: string) => {
     }
     const userInfo = validateRefreshToken(refreshToken)
     const tokenFromDB = await findToken(refreshToken)
+    console.log(userInfo)
     if (!userInfo || !tokenFromDB){
         throw HttpErrors.Unauthorized(); 
     }
@@ -100,4 +111,22 @@ export const refreshUser = async (refreshToken: string) => {
         throw HttpErrors.Unauthorized(); 
     }
     return saveTokenAndReturnData(user)
+}
+
+
+export const AnonymousAuthentication = async () =>{
+    console.log('biba')
+    const user = await prisma.user.create({
+        data: {
+        }
+    })
+    
+    const userData = filterAnonUserData(user.uuid)
+    const tokens = generateTokens({...userData})
+           
+    await saveToken(user.uuid, tokens.refreshToken)
+
+    return {
+        ...tokens,
+    }
 }

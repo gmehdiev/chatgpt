@@ -8,7 +8,11 @@ interface payload {
     id:string,
     isActivated: boolean,
 }
-export const generateTokens = (payload: payload) =>{
+
+interface payloadUuid{
+    id: string
+}
+export const generateTokens = (payload: payload | payloadUuid) =>{
 
     const accsessToken = jwt.sign(payload, AuthCookies.ACCESS_TOKEN, {
         expiresIn: '30m'
@@ -17,7 +21,6 @@ export const generateTokens = (payload: payload) =>{
         expiresIn: '30d'
     });
 
-    console.log('токен сгенерирован')
     return {
         accsessToken, 
         refreshToken
@@ -27,11 +30,13 @@ export const generateTokens = (payload: payload) =>{
 }
 
 export const saveToken = async (userId: string, refreshToken: string) =>{
-    const tokenData = await prisma.token.findUnique({  
+    console.log(userId)
+    const tokenData = await prisma.token.findUnique({
         where: {
-            userUuid: userId
+          userUuid: userId
         }
-    })
+      });
+    console.log(tokenData)
     if(tokenData) {
     await prisma.token.update({  
             where: {
@@ -63,14 +68,11 @@ export const removeToken = async (refreshToken: string) =>{
 
 
 export const findToken = async (refreshToken: string) =>{
-    // console.log(refreshToken)
     const tokenData = await prisma.token.findUnique({
         where: {
             refreshToken: refreshToken
         }
     })
-    // console.log(tokenData)
-
     return tokenData
 }
 
@@ -86,8 +88,8 @@ export const validateAccessToken = (token: string) => {
 
 export const validateRefreshToken = (token: string) => {
     try {
+        console.log(token)
         const userData = jwt.verify(token, AuthCookies.REFRESH_TOKEN)
-        // console.log(userData)
         return userData
     } catch (error) {
         return null

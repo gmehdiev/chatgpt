@@ -16,3 +16,9 @@ export const filterUserData = (payload: payload) =>{
     } 
  
 }
+
+export const filterAnonUserData = (uuid: string) =>{
+    return {
+        id: uuid
+    }
+}
