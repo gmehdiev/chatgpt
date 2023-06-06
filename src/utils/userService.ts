@@ -3,7 +3,7 @@ import bcrypt from "bcrypt"
 import * as uuid from "uuid"
 import { sendActivatonMail } from "./mailService"
 import { findToken, generateTokens, removeToken, saveToken, validateRefreshToken } from "./tokenService"
-import { filterAnonUserData, filterUserData } from "./filterUserData"
+import { filterAnonUserData, filterUserData } from "./common/filterUserData"
 import { HttpErrors } from "../helpers/error"
 import { saveTokenAndReturnData } from "./common/saveTokenAndReturnData"
 
@@ -35,8 +35,6 @@ export const registrationUser = async (email: string, password: string, refreshT
             activationLink: activationLink
             }
         });
-
-    console.log(user)
 
     await sendActivatonMail(email, `${process.env.API_URL}/api/activate/${activationLink}`)
     return saveTokenAndReturnData(user)
@@ -96,11 +94,11 @@ export const refreshUser = async (refreshToken: string) => {
     }
     const userInfo = validateRefreshToken(refreshToken)
     const tokenFromDB = await findToken(refreshToken)
-    console.log(userInfo)
+   
     if (!userInfo || !tokenFromDB){
         throw HttpErrors.Unauthorized(); 
     }
-
+    
     if(typeof userInfo === 'string') return
     const user = await prisma.user.findUnique({
         where:{
@@ -115,18 +113,9 @@ export const refreshUser = async (refreshToken: string) => {
 
 
 export const AnonymousAuthentication = async () =>{
-    console.log('biba')
     const user = await prisma.user.create({
         data: {
         }
     })
-    
-    const userData = filterAnonUserData(user.uuid)
-    const tokens = generateTokens({...userData})
-           
-    await saveToken(user.uuid, tokens.refreshToken)
-
-    return {
-        ...tokens,
-    }
+    return saveTokenAndReturnData(user)
 }

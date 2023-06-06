@@ -22,7 +22,7 @@ export const registration = async (req:Request , res:Response , next:NextFunctio
         res.cookie('refreshToken', userData?.refreshToken, {maxAge: 30*24*60*60*1000, httpOnly: true})
         return res.json(userData)
     } catch (error) {
-        console.log(error)
+        next(error)
     }
 }
 
@@ -52,14 +52,11 @@ export const refresh = async (req:Request , res:Response , next:NextFunction)=> 
     try {
         const {refreshToken} = req.cookies;
         if (typeof refreshToken === 'undefined'){
-            AnonymousAuthentication()
             const userData = await AnonymousAuthentication()
             res.cookie('refreshToken', userData?.refreshToken, {maxAge: 30*24*60*60*1000, httpOnly: true})
             return res.json(userData)
         }
-
         const userData = await refreshUser(refreshToken)
-
         res.cookie('refreshToken', userData?.refreshToken, {maxAge: 30*24*60*60*1000, httpOnly: true})
         return res.json(userData)
     } catch (error) {
@@ -78,7 +75,6 @@ export const getUsers = async (req:Request , res:Response , next:NextFunction)=>
 
 export const activate = async (req:Request , res:Response , next:NextFunction)=> {
     try {
-        console.log(req.params.link)
         const activateLink = req.params.link
         await activateUser(activateLink)
         return res.redirect(`http://vk.com`)

@@ -30,13 +30,13 @@ export const generateTokens = (payload: payload | payloadUuid) =>{
 }
 
 export const saveToken = async (userId: string, refreshToken: string) =>{
-    console.log(userId)
+
     const tokenData = await prisma.token.findUnique({
         where: {
           userUuid: userId
         }
       });
-    console.log(tokenData)
+
     if(tokenData) {
     await prisma.token.update({  
             where: {
@@ -88,7 +88,6 @@ export const validateAccessToken = (token: string) => {
 
 export const validateRefreshToken = (token: string) => {
     try {
-        console.log(token)
         const userData = jwt.verify(token, AuthCookies.REFRESH_TOKEN)
         return userData
     } catch (error) {

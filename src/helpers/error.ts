@@ -6,13 +6,14 @@ interface ErrorProps {
 
 
 class AppError extends Error {
-statusCode: number;
+    statusCode: number;
     errors: any[];
-constructor({ message, statusCode, errors = []}: ErrorProps) {
-    super();
-    this.message = message;
-    this.statusCode = statusCode;
-    this.errors = errors;
+
+    constructor({ message, statusCode, errors = []}: ErrorProps) {
+        super();
+        this.message = message;
+        this.statusCode = statusCode;
+        this.errors = errors;
     }
 }
 

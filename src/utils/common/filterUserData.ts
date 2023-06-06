@@ -1,15 +1,15 @@
 interface payload {
     uuid: string,   
-    email: string,  
-    password:string
-    isActivated:  boolean  
+    email: string | null,  
+    password:string | null,
+    isActivated:  boolean | null  ,
     activationLink?: string | null,
     token?: string | null,        
 }
 
 
 export const filterUserData = (payload: payload) =>{
-          return {
+    return {
         email:payload.email,
         id:payload.uuid,
         isActivated: payload.isActivated,
