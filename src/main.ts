@@ -29,7 +29,8 @@ app.use(errorMiddleware)
 //     const token = await prisma.token.deleteMany()
 //     const users = await prisma.user.deleteMany()
 //     const chat = await prisma.chat.deleteMany()
-//     console.log(users,token,chat )
+//     const message = await prisma.message.deleteMany()
+//     console.log(users,token,chat, message )
 // }
 // qweqwe()
 

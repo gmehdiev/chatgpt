@@ -1,7 +1,7 @@
 import {Router} from "express";
 import { activate, getUsers, login, logout, refresh, registration } from "../middleware/userMiddleware";
 import { body } from "express-validator";
-import { createChat, getChats } from "../middleware/chatMiddleware";
+import { createChat, getAllMessages, getChats, getCurrentChat, getGptAnswer, sendMessage } from "../middleware/chatMiddleware";
 export const router = Router()
 
 router.post('/registration',
@@ -17,3 +17,8 @@ router.get('/users', getUsers)
 
 router.post('/createChat', createChat)
 router.post('/getChat', getChats)
+router.get('/getCurrentChat', getCurrentChat)
+
+router.post('/sendMessage', sendMessage)
+router.post('/getAllMessages', getAllMessages)
+router.post('/getGptAnswer', getGptAnswer)
