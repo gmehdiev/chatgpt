@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { AnonymousAuthentication, activateUser, loginUser, logoutUser, refreshUser, registrationUser } from "../utils/userService";
+import { AnonymousAuthentication, activateUser, loginUser, logoutUser, refreshUser, registrationUser } from "../utils/auth/userService";
 import { validationResult } from "express-validator/src/validation-result";
 import { HttpErrors } from "../helpers/error";
 interface query {
@@ -82,4 +82,5 @@ export const activate = async (req:Request , res:Response , next:NextFunction)=>
         next(error)
     }
 }
+
 

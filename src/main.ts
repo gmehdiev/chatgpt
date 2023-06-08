@@ -5,13 +5,16 @@ import express from "express";
 import cors from "cors";
 import { router } from "./router";
 import { errorMiddleware } from "./middleware/errorMiddleware";
+import { createServer } from "http";
+import { Server, Socket } from "socket.io";
+import { chatgpt } from "./utils/chat/chatgptService";
 config()
 const prisma = new PrismaClient()
 const PORT = process.env.PORT ?? 5000;
 
 const app = express()
-
-app.listen(PORT)
+const server = createServer(app);
+server.listen(PORT)
 app.use(express.json())
 app.use(cookieParser())
 app.use(cors({
@@ -21,9 +24,14 @@ app.use(cors({
 app.use('/api', router)
 app.use(errorMiddleware)
 
+
 // const qweqwe = async () =>{
-//     const tokena = await prisma.token.deleteMany()
-//     const token = await prisma.user.deleteMany()
-//     console.log(tokena,token )
+//     const token = await prisma.token.deleteMany()
+//     const users = await prisma.user.deleteMany()
+//     const chat = await prisma.chat.deleteMany()
+//     console.log(users,token,chat )
 // }
 // qweqwe()
+
+
+// chatgpt()

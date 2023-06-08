@@ -1,5 +1,5 @@
 import jwt, { JwtPayload } from "jsonwebtoken" 
-import { AuthCookies } from '../consts/secretKeys';
+import { AuthCookies } from '../../consts/secretKeys';
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient()
 

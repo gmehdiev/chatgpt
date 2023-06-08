@@ -1,5 +1,5 @@
 import { filterUserData } from "./filterUserData"
-import { generateTokens, saveToken } from "../tokenService"
+import { generateTokens, saveToken } from "../auth/tokenService"
 
 
 export const saveTokenAndReturnData = async (user: any) =>{

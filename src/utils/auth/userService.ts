@@ -3,9 +3,9 @@ import bcrypt from "bcrypt"
 import * as uuid from "uuid"
 import { sendActivatonMail } from "./mailService"
 import { findToken, generateTokens, removeToken, saveToken, validateRefreshToken } from "./tokenService"
-import { filterAnonUserData, filterUserData } from "./common/filterUserData"
-import { HttpErrors } from "../helpers/error"
-import { saveTokenAndReturnData } from "./common/saveTokenAndReturnData"
+import { filterAnonUserData, filterUserData } from "../common/filterUserData"
+import { HttpErrors } from "../../helpers/error"
+import { saveTokenAndReturnData } from "../common/saveTokenAndReturnData"
 
 const prisma = new PrismaClient()
 
