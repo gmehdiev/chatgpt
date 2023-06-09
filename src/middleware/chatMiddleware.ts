@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client"
 import { Request, Response, NextFunction } from "express"
-import { createChats, findAllChat, findAllMessages, findMessages, saveMessage, sendMessages } from "../utils/chat/chatService"
+import { createChats, findAllChat, findAllMessages, findMessages, renameChat, saveMessage, sendMessages } from "../utils/chat/chatService"
 
 const prisma = new PrismaClient()
 
@@ -37,12 +37,12 @@ export const getCurrentChat = async (req:Request , res:Response , next:NextFunct
 
 export const sendMessage = async (req:Request , res:Response , next:NextFunction) => {
     try {
+        console.log('sendMessage')
         const role = req.body.role
         const chatId = req.body.uuid
         const content = req.body.content
         await saveMessage(chatId, role, content)
         const allMessages = await findAllMessages(chatId)
-        console.log(allMessages)
         return res.json(allMessages)
     } catch (error) {
         
@@ -51,6 +51,7 @@ export const sendMessage = async (req:Request , res:Response , next:NextFunction
 
 export const getAllMessages = async (req:Request , res:Response , next:NextFunction) => {
     try {
+        console.log('getAllMessages')
         const chatId = req.body.uuid
         const message = await findAllMessages(chatId)
         return res.json(message)
@@ -61,6 +62,7 @@ export const getAllMessages = async (req:Request , res:Response , next:NextFunct
 
 export const getGptAnswer = async (req:Request , res:Response , next:NextFunction) => {
     try {
+        console.log('getGptAnswer')
         const chatId = req.body.uuid
 
         const gptAnswer = await sendMessages(chatId)
@@ -69,10 +71,19 @@ export const getGptAnswer = async (req:Request , res:Response , next:NextFunctio
         
     }
 }
-// export const createChat = async (userUuid: string) =>{
-//     await prisma.chat.create({
-//         data: {
-//             userUuid: userUuid
-//         }
-//     })
-// }
+
+export const renameChatApi = async (req:Request , res:Response , next:NextFunction) => {
+ try {
+    console.log(req.body)
+    const uuid = req.body.uuid
+    const name = req.body.name
+    const userUuid = req.body.userUuid
+    const chat = await renameChat(uuid, name)
+
+    const chats = await findAllChat(userUuid)
+    console.log(chats)
+    return res.json(chats)
+ } catch (error) {
+    
+ }}
+ 

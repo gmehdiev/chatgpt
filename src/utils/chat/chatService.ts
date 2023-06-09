@@ -24,7 +24,10 @@ export const findAllChat = async (userId: string) => {
         const chats = await prisma.chat.findMany({
             where: {
                 userUuid: userId
-            }
+            },
+            orderBy: {
+                createdAt: 'desc', 
+              },
         })
         return chats
     } catch (error) {
@@ -53,8 +56,7 @@ export const sendMessages = async (uuid: string) => {
         if (!allMessages) return
         const filter = filterMessage(allMessages)     
         
-        //  const jopa = JSON.stringify(filter)
-        //@ts-ignore
+
        const chatgptAnswer = await chatgpt(filter)
        if (!chatgptAnswer) return
        await saveMessage(uuid, chatgptAnswer.role, chatgptAnswer.content)
@@ -96,10 +98,32 @@ try {
     const messages = await prisma.message.findMany({
         where: {
             chatUuid: uuid,
-        }
+        },
+        orderBy: {
+            createdAt: 'asc', 
+          },
+    
     })
     return messages
 } catch (error) {
     
 }
+}
+
+
+export const renameChat = async(uuid: string, name: string) =>{
+    try {
+        const chats = await prisma.chat.update({
+            where: {
+                uuid: uuid
+            },
+            data: {
+                name: name
+              },
+            
+        })
+        return chats
+    } catch (error) {
+        
+    }
 }
